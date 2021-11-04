@@ -1,6 +1,7 @@
 import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useContext } from 'react';
+import { CanUserSee } from '../components/can-user-see';
 import { AuthContext } from '../contexts/auth';
 import { withSSRAuth } from '../utils/with-ssr-auth';
 
@@ -17,6 +18,10 @@ const DashboardPage: NextPage = () => {
       <h1>Dashboard</h1>
 
       <h3>Hello mr: {user?.email} </h3>
+
+      <CanUserSee permissions={['metrics.list']}>
+        <h1>user</h1>
+      </CanUserSee>
     </div>
   );
 };
@@ -25,8 +30,6 @@ export default DashboardPage;
 
 export const getServerSideProps: GetServerSideProps = withSSRAuth(
   async (context) => {
-    
-
     return {
       props: {},
     };

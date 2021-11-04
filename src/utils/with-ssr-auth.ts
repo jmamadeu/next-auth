@@ -1,17 +1,28 @@
+import jwtDecode from 'jwt-decode';
 import {
   GetServerSideProps,
   GetServerSidePropsContext,
   GetServerSidePropsResult
 } from 'next';
 import { parseCookies } from 'nookies';
+import { validateUserPermissions } from './validate-user-permissions';
 
-export function withSSRAuth<P>(fn: GetServerSideProps<P>): GetServerSideProps {
+type WithSSRAuthOptionsProperties = {
+  roles?: Array<string>;
+  permissions?: Array<string>;
+};
+
+export function withSSRAuth<P>(
+  fn: GetServerSideProps<P>,
+  options?: WithSSRAuthOptionsProperties
+): GetServerSideProps {
   return async (
     context: GetServerSidePropsContext
   ): Promise<GetServerSidePropsResult<P>> => {
     const cookies = parseCookies(context);
+    const token = cookies['nextauth.token'];
 
-    if (!cookies['nextauth.token']) {
+    if (!token) {
       return {
         redirect: {
           destination: '/',
@@ -19,24 +30,27 @@ export function withSSRAuth<P>(fn: GetServerSideProps<P>): GetServerSideProps {
         },
       };
     }
+
+    if(options) {
+
+      const user = jwtDecode<{ permissions?: string[]; roles?: string[] }>(token);
+  
+      const userHasValidPermissions = validateUserPermissions({
+        ...options,
+        user,
+      });
+
+      if(!userHasValidPermissions) {
+        return {
+          redirect: {
+            destination: '/dashboard',
+            permanent: false
+          }
+        }
+      }
+    }
+
+
     return await fn(context);
-    // try {
-    //   return await fn(context);
-    // } catch (err) {
-    //   console.log(err)
-    //   if (err instanceof AuthTokenError) {
-    //     destroyCookie(context, 'nextauth.token');
-    //     destroyCookie(context, 'nextauth.refreshToken');
-
-    //     console.log("teste")
-    //     return {
-    //       redirect: {
-    //         destination: '/',
-    //         permanent: false,
-    //       },
-    //     };
-
-    //   }
-    // }
   };
 }
