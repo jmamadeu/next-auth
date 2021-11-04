@@ -1,5 +1,5 @@
 import Router from 'next/router';
-import { parseCookies, setCookie } from 'nookies';
+import { destroyCookie, parseCookies, setCookie } from 'nookies';
 import React, { createContext, useCallback, useEffect, useState } from 'react';
 import { api } from '../services/api';
 
@@ -19,6 +19,11 @@ type AuthContextProperties = {
   isAuthenticated: boolean;
   user: UserProperties;
 };
+
+export function signOutRemovingCookies() {
+  destroyCookie(undefined, 'nextauth.token');
+  destroyCookie(undefined, 'nextauth.refreshToken');
+}
 
 export const AuthContext = createContext<AuthContextProperties>(
   {} as AuthContextProperties
@@ -43,7 +48,9 @@ export const AuthProvider: React.FC = ({ children }) => {
           permissions,
         });
       } catch (err: any) {
-        console.log(err.message, "aqui");
+        signOutRemovingCookies()
+
+        Router.push('/');
       }
     }
   }
