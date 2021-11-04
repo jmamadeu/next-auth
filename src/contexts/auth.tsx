@@ -1,4 +1,5 @@
 import Router from 'next/router';
+import { setCookie } from 'nookies';
 import React, { createContext, useCallback, useState } from 'react';
 import { api } from '../services/api';
 
@@ -24,8 +25,8 @@ export const AuthContext = createContext<AuthContextProperties>(
 );
 
 export const AuthProvider: React.FC = ({ children }) => {
-  const isAuthenticated = false;
   const [user, setUser] = useState<UserProperties>({} as UserProperties);
+  const isAuthenticated = !!user;
 
   const signIn = useCallback(async ({ email, password }: SignInProperties) => {
     try {
@@ -34,13 +35,25 @@ export const AuthProvider: React.FC = ({ children }) => {
         password,
       });
 
-      setUser({
-        email,
-        permissions: response.permissions,
-        roles: response.roles
+      const { roles, permissions, token, refreshToken } = response;
+
+      setCookie(undefined, 'nextauth.token', token, {
+        maxAge: 60 * 60 * 24 * 30,
+        path: '/',
       });
 
-      Router.push('/dashboard')
+      setCookie(undefined, 'nextauth.refreshToken', token, {
+        maxAge: 60 * 60 * 24 * 30,
+        path: '/',
+      });
+
+      setUser({
+        email,
+        permissions,
+        roles,
+      });
+
+      Router.push('/dashboard');
     } catch (error: any) {
       console.log(error.message);
     }
