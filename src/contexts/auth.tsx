@@ -33,10 +33,9 @@ export const AuthProvider: React.FC = ({ children }) => {
 
     if (token) {
       try {
-        const response = await api.get('/me');
+        const { data } = await api.get('/me');
 
-        const { roles, email, permissions } =
-          response.data;
+        const { roles, email, permissions } = data;
 
         setUser({
           roles,
@@ -44,7 +43,7 @@ export const AuthProvider: React.FC = ({ children }) => {
           permissions,
         });
       } catch (err: any) {
-        console.log(err.message);
+        console.log(err.message, "aqui");
       }
     }
   }
@@ -67,7 +66,7 @@ export const AuthProvider: React.FC = ({ children }) => {
         path: '/',
       });
 
-      setCookie(undefined, 'nextauth.refreshToken', token, {
+      setCookie(undefined, 'nextauth.refreshToken', refreshToken, {
         maxAge: 60 * 60 * 24 * 30,
         path: '/',
       });
@@ -78,7 +77,7 @@ export const AuthProvider: React.FC = ({ children }) => {
         roles,
       });
 
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       Router.push('/dashboard');
     } catch (error: any) {
