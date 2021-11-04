@@ -2,7 +2,7 @@ import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useContext } from 'react';
 import { CanUserSee } from '../components/can-user-see';
-import { AuthContext } from '../contexts/auth';
+import { AuthContext, signOut } from '../contexts/auth';
 import { withSSRAuth } from '../utils/with-ssr-auth';
 
 const DashboardPage: NextPage = () => {
@@ -18,6 +18,8 @@ const DashboardPage: NextPage = () => {
       <h1>Dashboard</h1>
 
       <h3>Hello mr: {user?.email} </h3>
+
+      <button onClick={signOut}>sign out</button>
 
       <CanUserSee permissions={['metrics.list']}>
         <h1>user</h1>
