@@ -1,22 +1,24 @@
-import type { NextPage } from 'next';
+import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { FormEvent, useContext, useState } from 'react';
 import { AuthContext } from '../contexts/auth';
+import { withSSRQuest } from '../utils/with-ssr-guest';
 
 const Home: NextPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const {signIn} = useContext(AuthContext)
+  const { signIn } = useContext(AuthContext);
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
 
     const data = {
-      email, password
-    }
+      email,
+      password,
+    };
 
-    signIn(data)
+    signIn(data);
   };
 
   return (
@@ -29,7 +31,8 @@ const Home: NextPage = () => {
 
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor='email'>Email address</label><br />
+          <label htmlFor='email'>Email address</label>
+          <br />
           <input
             type='email'
             name='email'
@@ -57,3 +60,9 @@ const Home: NextPage = () => {
 };
 
 export default Home;
+
+export const getServerSideProps: GetServerSideProps = withSSRQuest(async () => {
+  return {
+    props: {},
+  };
+});
