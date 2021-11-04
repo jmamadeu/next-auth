@@ -1,11 +1,11 @@
-import type { NextPage } from 'next';
+import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useContext } from 'react';
 import { AuthContext } from '../contexts/auth';
+import { withSSRAuth } from '../utils/with-ssr-auth';
 
 const DashboardPage: NextPage = () => {
-
-  const { user } = useContext(AuthContext)
+  const { user } = useContext(AuthContext);
 
   return (
     <div>
@@ -22,3 +22,13 @@ const DashboardPage: NextPage = () => {
 };
 
 export default DashboardPage;
+
+export const getServerSideProps: GetServerSideProps = withSSRAuth(
+  async (context) => {
+    
+
+    return {
+      props: {},
+    };
+  }
+);
